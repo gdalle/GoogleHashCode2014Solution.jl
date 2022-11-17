@@ -13,24 +13,22 @@ DocMeta.setdocmeta!(
     @testset verbose = true "Code quality (Aqua.jl)" begin
         Aqua.test_all(HashCode2014Solution; ambiguities=false)
     end
-
     @testset verbose = true "Code formatting (JuliaFormatter.jl)" begin
         @test format(HashCode2014Solution; verbose=true, overwrite=false)
     end
-
     @testset verbose = true "Doctests (Documenter.jl)" begin
         doctest(HashCode2014Solution)
     end
-
-    @testset verbose = true "Bound" begin
-        include("bound.jl")
-    end
-
     @testset verbose = true "Graph" begin
         include("graph.jl")
     end
-
     @testset verbose = true "Random walk" begin
         include("random.jl")
+    end
+    @testset verbose = true "Knapsack UB" begin
+        include("knapsack.jl")
+    end
+    @testset verbose = true "Flow UB" begin
+        include("flow.jl")
     end
 end

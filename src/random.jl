@@ -1,6 +1,6 @@
 function fast_random_walk(city::City)
     (; total_duration, nb_cars, starting_junction) = city
-    g = create_graph(city)
+    g = CityGraph(city)
     itineraries = Vector{Vector{Int}}(undef, nb_cars)
     for c in 1:nb_cars
         itinerary = [starting_junction]
@@ -9,14 +9,14 @@ function fast_random_walk(city::City)
             i = last(itinerary)
             candidates = [
                 j for j in outneighbors(g, i) if
-                duration + get_data(g, i, j).duration <= total_duration
+                duration + get_duration(g, i, j) <= total_duration
             ]
             if isempty(candidates)
                 break
             else
                 j = rand(candidates)
                 push!(itinerary, j)
-                duration += get_data(g, i, j).duration
+                duration += get_duration(g, i, j)
             end
         end
         itineraries[c] = itinerary

@@ -1,9 +1,10 @@
 using HashCode2014
 using HashCode2014Solution
+using Test
 
-city = read_city()
+city = read_city();
 
-@time solution = fast_random_walk_repeated(city; trials=10)
+@time solution = fast_random_walk_repeated(city; trials=3)
 
 @test is_feasible(solution, city)
 distance = total_distance(solution, city)

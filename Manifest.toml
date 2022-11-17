@@ -2,17 +2,11 @@
 
 julia_version = "1.8.2"
 manifest_format = "2.0"
-project_hash = "8bd86e9bcdcd439ff1012d68ec698fe91636aba8"
+project_hash = "a2ef9b571d9631f58d67ded158637d40825329a7"
 
 [[deps.ArgTools]]
 uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
 version = "1.1.1"
-
-[[deps.ArnoldiMethod]]
-deps = ["LinearAlgebra", "Random", "StaticArrays"]
-git-tree-sha1 = "62e51b39331de8911e4a7ff6f5aaf38a5f4cc0ae"
-uuid = "ec485272-7323-5ecc-a04f-4719b315124d"
-version = "0.2.0"
 
 [[deps.Artifacts]]
 uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
@@ -111,10 +105,6 @@ git-tree-sha1 = "c5b6685d53f933c11404a3ae9822afe30d522494"
 uuid = "b552c78f-8df3-52c6-915a-8e097449b14b"
 version = "1.12.2"
 
-[[deps.Distributed]]
-deps = ["Random", "Serialization", "Sockets"]
-uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
-
 [[deps.DocStringExtensions]]
 deps = ["LibGit2"]
 git-tree-sha1 = "c36550cb29cbe373e95b3f40486b9a4148f89ffd"
@@ -135,12 +125,6 @@ git-tree-sha1 = "10fa12fe96e4d76acfa738f4df2126589a67374f"
 uuid = "f6369f11-7733-5829-9624-2563aa707210"
 version = "0.10.33"
 
-[[deps.Graphs]]
-deps = ["ArnoldiMethod", "Compat", "DataStructures", "Distributed", "Inflate", "LinearAlgebra", "Random", "SharedArrays", "SimpleTraits", "SparseArrays", "Statistics"]
-git-tree-sha1 = "ba2d094a88b6b287bd25cfa86f301e7693ffae2f"
-uuid = "86223c79-3864-5bf0-83f7-82e725a168b6"
-version = "1.7.4"
-
 [[deps.HashCode2014]]
 deps = ["Artifacts", "PythonCall"]
 git-tree-sha1 = "32e30b11d479dcbc4b52471804621dacd4cc6016"
@@ -160,11 +144,6 @@ deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "Pk
 git-tree-sha1 = "b3e24275666fcc2e24d1a58a9f02acd9d2e23d3a"
 uuid = "8fd58aa0-07eb-5a78-9b36-339c94fd15ea"
 version = "1.3.0+0"
-
-[[deps.Inflate]]
-git-tree-sha1 = "5cd07aab533df5170988219191dfad0519391428"
-uuid = "d25df0c9-e2be-5dd7-82c8-3ad0b3e990b9"
-version = "0.1.3"
 
 [[deps.InteractiveUtils]]
 deps = ["Markdown"]
@@ -265,14 +244,6 @@ version = "1.9.0"
 deps = ["Artifacts", "Libdl"]
 uuid = "c8ffd9c3-330d-5841-b78e-0817d7145fa1"
 version = "2.28.0+0"
-
-[[deps.MetaDataGraphs]]
-deps = ["Graphs", "SparseArrays"]
-git-tree-sha1 = "e83fec21be0678e387e9aa5f2cb4ce8a5b1206af"
-repo-rev = "main"
-repo-url = "https://github.com/gdalle/MetaDataGraphs.jl"
-uuid = "886fa1cc-5380-4008-8113-0516998d4847"
-version = "0.2.0"
 
 [[deps.MicroMamba]]
 deps = ["Pkg", "Scratch"]
@@ -393,16 +364,6 @@ version = "1.1.1"
 
 [[deps.Serialization]]
 uuid = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
-
-[[deps.SharedArrays]]
-deps = ["Distributed", "Mmap", "Random", "Serialization"]
-uuid = "1a1011a3-84de-559e-8e89-a11a2f7dc383"
-
-[[deps.SimpleTraits]]
-deps = ["InteractiveUtils", "MacroTools"]
-git-tree-sha1 = "5d7e3f4e11935503d3ecaf7186eac40602e7d231"
-uuid = "699a6c99-e7fa-54fc-8d76-47d257e15c1d"
-version = "0.9.4"
 
 [[deps.SnoopPrecompile]]
 git-tree-sha1 = "f604441450a3c0569830946e5b33b78c928e1a85"
