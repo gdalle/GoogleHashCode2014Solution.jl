@@ -6,4 +6,4 @@ city = read_city();
 
 ub = flow_upper_bound(city)
 
-@test ub < sum(street.distance for street in city.streets)
+@test ub == sum(street.distance for street in city.streets)

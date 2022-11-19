@@ -3,7 +3,10 @@ using Documenter
 using HashCode2014
 using HashCode2014Solution
 using JuliaFormatter
+using Random
 using Test
+
+Random.seed!(63)
 
 DocMeta.setdocmeta!(
     HashCode2014Solution, :DocTestSetup, :(using HashCode2014Solution); recursive=true

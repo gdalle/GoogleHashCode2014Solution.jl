@@ -6,6 +6,8 @@ end
 nv(g::CityGraph) = size(g.durations, 1)
 ne(g::CityGraph) = nnz(g.durations)
 
+vertices(g::CityGraph) = 1:nv(g)
+
 function edges(g::CityGraph)
     (I, J, _) = findnz(g.durations)
     return zip(I, J)
