@@ -51,7 +51,7 @@ function flow_upper_bound(city::City; integer=false)
             @constraint(model, inflow == outflow)
         end
     end
-
+    set_silent(model)
     optimize!(model)
     return objective_value(model)
 end
