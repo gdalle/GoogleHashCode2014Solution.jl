@@ -18,16 +18,7 @@ Random.seed!(63)
     @testset verbose = true "Code formatting (JuliaFormatter.jl)" begin
         @test format(GoogleHashCode2014Solution; verbose=false, overwrite=false)
     end
-    @testset verbose = true "Graph" begin
-        include("graph.jl")
-    end
-    @testset verbose = true "Random walk" begin
-        include("random.jl")
-    end
-    @testset verbose = true "Knapsack upper bound" begin
-        include("knapsack.jl")
-    end
-    @testset verbose = true "Flow upper bound" begin
-        include("flow.jl")
+    @testset "Greedy algorithm" begin
+        include("greedy.jl")
     end
 end
