@@ -8,8 +8,10 @@ using InteractiveUtils
 begin
 	using GoogleHashCode2014
 	using PlutoUI
+	using ProgressLogging
 	using PythonCall
 	using Random
+	using Statistics
 	using StatsBase
 end
 
@@ -30,27 +32,33 @@ md"""
 begin
 	struct BetterCity
 	    city::City
-	    connections::Dict{Int,Vector{Int}}  # junction index -> vector of street indices
+		# junction index -> vector of street indices
+	    connections::Dict{Int,Vector{Int}}
+		# pair of junction indices -> street index
+		street_indices::Dict{Tuple{Int,Int},Int}
 	end
 	
 	function BetterCity(city::City)
 	    connections = Dict{Int,Vector{Int}}()
-	    for (k, street) in enumerate(city.streets)
+	    street_indices = Dict{Tuple{Int,Int},Int}()
+	    for (s, street) in enumerate(city.streets)
 	        (; endpointA, endpointB, bidirectional) = street
+			street_indices[endpointA, endpointB] = s
 	        if !haskey(connections, endpointA)
-	            connections[endpointA] = [k]
+	            connections[endpointA] = [s]
 	        else
-	            push!(connections[endpointA], k)
+	            push!(connections[endpointA], s)
 	        end
 	        if bidirectional
+				street_indices[endpointB, endpointA] = s
 	            if !haskey(connections, endpointB)
-	                connections[endpointB] = [k]
+	                connections[endpointB] = [s]
 	            else
-	                push!(connections[endpointB], k)
+	                push!(connections[endpointB], s)
 	            end
 	        end
 	    end
-	    return BetterCity(city, connections)
+	    return BetterCity(city, connections, street_indices)
 	end
 end
 
@@ -61,13 +69,7 @@ end
 
 # ╔═╡ 12e298bf-93d2-43ad-8cc7-e5d41b02f0c2
 function street_from_pair(i::Integer, j::Integer, bcity::BetterCity)
-    for s in adjacent_streets(bcity, i)
-        street = bcity.city.streets[s]
-        if is_street(i, j, street)
-            return street
-        end
-    end
-    throw(ArgumentError("Junction pair $((i, j)) does not correspond to any street."))
+    return bcity.street_indices[i, j]
 end
 
 # ╔═╡ 32e421be-6c7b-44b7-9f1a-cc0002b89048
@@ -115,6 +117,26 @@ function append_street!(
     return nothing
 end
 
+# ╔═╡ 7fd93586-6866-496f-b181-089041773506
+function fast_total_distance(bsolution::BetterSolution, bcity::BetterCity)
+	(; city) = bcity
+	(; solution, streets_visited) = bsolution
+	streets_counted = falses(length(streets_visited))
+	dist = 0
+	for c in 1:city.nb_cars
+		itinerary = solution.itineraries[c]
+		for k in 1:length(itinerary)-1
+			i, j = itinerary[k], itinerary[k+1]
+			s = street_from_pair(i, j, bcity)
+			if !streets_counted[s]
+				dist += city.streets[s].distance
+				streets_counted[s] = true
+			end
+		end
+	end
+	return dist
+end
+
 # ╔═╡ ddab3289-c951-4400-8005-5b31a29f7197
 md"""
 # Greedy algorithm
@@ -124,6 +146,12 @@ md"""
 md"""
 # Experiments
 """
+
+# ╔═╡ 15f9c4f8-330a-4e72-82ae-d5b8399252b4
+city = read_city()
+
+# ╔═╡ 50c0ab69-621c-40e9-9b47-cac14953c2c1
+bcity = BetterCity(city)
 
 # ╔═╡ 91d3dc65-3b0c-475a-a5e5-862bc498827e
 md"""
@@ -139,22 +167,25 @@ function fitness(
 )
 	city = bcity.city  # usual City object
 	solution = bsolution.solution  # usual Solution object
-	street = city.streets[s]  # usual Street object
+	street = city.streets[s]  # street that car c might possibly take (which you're scoring)
+	itinerary = solution.itineraries[c]  # itinerary of car c so far
 	speed = street.distance / street.duration
-	i = current_junction(c, bsolution)
-	j = get_street_end(i, street)
+	i = last(itinerary)  # current junction index
+	j = get_street_end(i, street)  # possible next junction index
+	this_junction = city.junctions[i]
 	next_junction = city.junctions[j]
-	latitude, longitude = next_junction.latitude, next_junction.longitude
+	this_latitude, this_longitude = this_junction.latitude, this_junction.longitude
+	next_latitude, next_longitude = next_junction.latitude, next_junction.longitude
 
 	# use all of this to design a good score
-    score = 1 - 0.7 * (bsolution.streets_visited[s] > 0)
+    score = 1 - 0.8 * (bsolution.streets_visited[s] > 0)
 	return score
 end
 
 # ╔═╡ 616d49cc-a61f-4923-ad0b-286d7bb36b05
-function greedy_random_walk(rng::AbstractRNG, city::City)
+function greedy_random_walk(rng::AbstractRNG, bcity::BetterCity)
+	(; city) = bcity
     # create better data structures
-	bcity = BetterCity(city)
     bsolution = BetterSolution(bcity)
 
 	# loop over all cars
@@ -177,14 +208,16 @@ function greedy_random_walk(rng::AbstractRNG, city::City)
                 break
             else
 				# pick a candidate with a probability that grows with its score
-                s = wsample(rng, street_index_candidates, street_index_scores)
+				weights = max.(street_index_scores, 0)
+				weights ./= sum(weights)
+                s = wsample(rng, street_index_candidates, weights)
 				# update the solution
                 append_street!(bsolution, c, s, bcity)
                 current_duration += city.streets[s].duration
             end
         end
     end
-    return bsolution.solution
+    return bsolution
 end
 
 # ╔═╡ 7354ed48-3190-43e0-866b-d54f97e8b022
@@ -192,14 +225,29 @@ md"""
 ## Result
 """
 
-# ╔═╡ df7525c8-9cb4-47af-9806-320212134cf1
-actual_city = read_city()
+# ╔═╡ 78145f50-6d63-48fe-ad96-f664473f5c2b
+nb_solutions = 10
 
 # ╔═╡ 549a642e-848c-482e-a3e1-d4938a5b9a85
-actual_solution = greedy_random_walk(Random.MersenneTwister(0), actual_city)
+bsolutions = let
+	rng = Random.MersenneTwister(0)
+	bsolutions = Vector{BetterSolution}(undef, nb_solutions)
+	@progress for k in eachindex(bsolutions)
+		bsolutions[k] = greedy_random_walk(rng, bcity)
+	end
+	bsolutions
+end
 
 # ╔═╡ 9f703981-bae1-4810-8a25-85dc6579256d
-total_distance(actual_solution, actual_city)
+total_distance_interval = let
+	city = read_city()
+	dists = similar(bsolutions, Int)
+	@progress for (k, bsolution) in enumerate(bsolutions)
+		dists[k] = fast_total_distance(bsolution, bcity)
+	end
+	μ, σ = mean(dists), std(dists)
+	(μ - σ, μ + σ)
+end
 
 # ╔═╡ ae3b6f70-e2c1-498e-80c3-880cb53d81ef
 md"""
@@ -207,20 +255,23 @@ md"""
 """
 
 # ╔═╡ e7a8b809-d357-401d-b3d2-a978ad6887ab
-plot_streets(actual_city, actual_solution)
+plot_streets(city, bsolutions[1].solution)
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 GoogleHashCode2014 = "a405283a-0100-47ff-b2ed-5493eb4224b2"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+ProgressLogging = "33c8b6b6-d38a-422a-b730-caa89a2f386c"
 PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 
 [compat]
 GoogleHashCode2014 = "~0.2.3"
 PlutoUI = "~0.7.60"
+ProgressLogging = "~0.1.4"
 PythonCall = "~0.9.23"
 StatsBase = "~0.34.3"
 """
@@ -231,7 +282,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.10.5"
 manifest_format = "2.0"
-project_hash = "880032f28ee52b4884f26f1951f33829b7ecbaca"
+project_hash = "39abb2033051679c28a7777805a2a43465c6a141"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -528,6 +579,12 @@ version = "1.4.3"
 deps = ["Unicode"]
 uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
+[[deps.ProgressLogging]]
+deps = ["Logging", "SHA", "UUIDs"]
+git-tree-sha1 = "80d919dee55b9c50e8d9e2da5eeafff3fe58b539"
+uuid = "33c8b6b6-d38a-422a-b730-caa89a2f386c"
+version = "0.1.4"
+
 [[deps.PythonCall]]
 deps = ["CondaPkg", "Dates", "Libdl", "MacroTools", "Markdown", "Pkg", "REPL", "Requires", "Serialization", "Tables", "UnsafePointers"]
 git-tree-sha1 = "06a778ec6d6e76b0c2fb661436a18bce853ec45f"
@@ -688,22 +745,25 @@ version = "17.4.0+2"
 # ╠═5c96fdb3-bda1-4bd9-9021-aa643131bd62
 # ╟─4e108f85-268e-4797-a7b5-af8ff44deb1c
 # ╟─a61031d9-3a4c-4c05-bcc0-b1d0f1cc65b2
-# ╠═d1a03997-81c2-4dfd-aeb8-d46081dc4f6e
-# ╠═e8751422-5081-42a3-b008-1c94af785fdf
-# ╠═12e298bf-93d2-43ad-8cc7-e5d41b02f0c2
+# ╟─d1a03997-81c2-4dfd-aeb8-d46081dc4f6e
+# ╟─e8751422-5081-42a3-b008-1c94af785fdf
+# ╟─12e298bf-93d2-43ad-8cc7-e5d41b02f0c2
 # ╟─32e421be-6c7b-44b7-9f1a-cc0002b89048
-# ╠═f800f598-b9c1-4fe9-8fb5-1e9775c4f35b
-# ╠═6bff5fbf-67e7-43c4-86f9-7d68087b1c4a
-# ╠═c88a0edf-62ed-4d59-ac1a-2d0fa02b9785
+# ╟─f800f598-b9c1-4fe9-8fb5-1e9775c4f35b
+# ╟─6bff5fbf-67e7-43c4-86f9-7d68087b1c4a
+# ╟─c88a0edf-62ed-4d59-ac1a-2d0fa02b9785
+# ╟─7fd93586-6866-496f-b181-089041773506
 # ╟─ddab3289-c951-4400-8005-5b31a29f7197
 # ╠═616d49cc-a61f-4923-ad0b-286d7bb36b05
 # ╟─2732139c-6e5e-4907-9ace-f22095d830dd
+# ╠═15f9c4f8-330a-4e72-82ae-d5b8399252b4
+# ╠═50c0ab69-621c-40e9-9b47-cac14953c2c1
 # ╟─91d3dc65-3b0c-475a-a5e5-862bc498827e
 # ╠═81b53137-843f-4349-8712-db9d1c0f7f6c
 # ╟─7354ed48-3190-43e0-866b-d54f97e8b022
-# ╠═df7525c8-9cb4-47af-9806-320212134cf1
-# ╠═549a642e-848c-482e-a3e1-d4938a5b9a85
-# ╠═9f703981-bae1-4810-8a25-85dc6579256d
+# ╠═78145f50-6d63-48fe-ad96-f664473f5c2b
+# ╟─549a642e-848c-482e-a3e1-d4938a5b9a85
+# ╟─9f703981-bae1-4810-8a25-85dc6579256d
 # ╟─ae3b6f70-e2c1-498e-80c3-880cb53d81ef
 # ╠═e7a8b809-d357-401d-b3d2-a978ad6887ab
 # ╟─00000000-0000-0000-0000-000000000001
