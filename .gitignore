@@ -1,3 +1,4 @@
 .CondaPkg
 /docs/build
 solution/
+playground.jl

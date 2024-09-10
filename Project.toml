@@ -17,16 +17,18 @@ JuMP = "4076af6c-e467-56ae-b986-b466b2749572"
 GoogleHashCode2014JuMPHiGHSExt = ["JuMP", "HiGHS"]
 
 [compat]
-HashCode2014 = "0.2.2"
+GoogleHashCode2014 = "0.2.2"
 HiGHS = "1.9"
 JuMP = "1.23"
 ProgressLogging = "0.1"
+Random = "1.10"
+SparseArrays = "1.10"
 julia = "1.10"
 
 [extras]
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
-HashCode2014 = "7bbed249-721d-42ac-b1f6-7cf884be0fbe"
+GoogleHashCode2014 = "a405283a-0100-47ff-b2ed-5493eb4224b2"
 HiGHS = "87dc4568-4c63-4d18-b0c0-bb2238e4078b"
 JuMP = "4076af6c-e467-56ae-b986-b466b2749572"
 JuliaFormatter = "98e50ef6-434e-11e9-1051-2b60c6c9e899"
@@ -34,4 +36,4 @@ Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Aqua", "Documenter", "HashCode2014", "JuliaFormatter", "Random", "Test"]
+test = ["Aqua", "Documenter", "GoogleHashCode2014", "HiGHS", "JuliaFormatter", "JuMP", "Random", "Test"]

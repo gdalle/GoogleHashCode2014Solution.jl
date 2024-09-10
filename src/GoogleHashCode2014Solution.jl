@@ -1,8 +1,6 @@
 module GoogleHashCode2014Solution
 
-using HashCode2014
-using HiGHS
-using JuMP
+using GoogleHashCode2014
 using ProgressLogging
 using Random: AbstractRNG
 using SparseArrays

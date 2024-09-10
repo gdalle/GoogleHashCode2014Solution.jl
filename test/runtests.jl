@@ -1,6 +1,6 @@
 using Aqua
-using HashCode2014
-using HashCode2014Solution
+using GoogleHashCode2014
+using GoogleHashCode2014Solution
 using JuliaFormatter
 using Random
 using Test
@@ -10,11 +10,13 @@ Random.seed!(63)
 @testset verbose = true "HashCode2014Solution.jl" begin
     @testset verbose = true "Code quality (Aqua.jl)" begin
         Aqua.test_all(
-            HashCode2014Solution; ambiguities=false, deps_compat=(; check_extras=false)
+            GoogleHashCode2014Solution;
+            ambiguities=false,
+            deps_compat=(; check_extras=false),
         )
     end
     @testset verbose = true "Code formatting (JuliaFormatter.jl)" begin
-        @test format(HashCode2014Solution; verbose=false, overwrite=false)
+        @test format(GoogleHashCode2014Solution; verbose=false, overwrite=false)
     end
     @testset verbose = true "Graph" begin
         include("graph.jl")

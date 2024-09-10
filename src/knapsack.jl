@@ -1,7 +1,7 @@
-worth(street::Street) = street.distance / street.duration
+speed(street::Street) = street.distance / street.duration
 
 function knapsack_upper_bound(city::City)
-    sorted_streets = sort(city.streets; by=worth, rev=true)
+    sorted_streets = sort(city.streets; by=speed, rev=true)
     s = 1
     current_distance = 0
     current_duration = 0

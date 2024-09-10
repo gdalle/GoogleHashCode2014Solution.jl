@@ -1,5 +1,7 @@
-using HashCode2014
-using HashCode2014Solution
+using GoogleHashCode2014
+using GoogleHashCode2014Solution
+using JuMP: JuMP
+using HiGHS: HiGHS
 using Test
 
 city = read_city();
