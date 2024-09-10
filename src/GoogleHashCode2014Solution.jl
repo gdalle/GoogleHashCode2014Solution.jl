@@ -1,4 +1,4 @@
-module HashCode2014Solution
+module GoogleHashCode2014Solution
 
 using HashCode2014
 using HiGHS
@@ -19,6 +19,7 @@ include("graph.jl")
 include("random.jl")
 include("naive.jl")
 include("knapsack.jl")
-include("flow.jl")
+
+function flow_upper_bound end
 
 end

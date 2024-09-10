@@ -1,4 +1,10 @@
-function flow_upper_bound(city::City; integer=false)
+module GoogleHashCode2014JuMPHiGHSExt
+
+using GoogleHashCode2014
+using HiGHS
+using JuMP
+
+function GoogleHashCode2014.flow_upper_bound(city::City; integer=false)
     g = CityGraph(city)
     C = city.nb_cars
     T = city.total_duration
@@ -54,4 +60,6 @@ function flow_upper_bound(city::City; integer=false)
     set_silent(model)
     optimize!(model)
     return objective_value(model)
+end
+
 end

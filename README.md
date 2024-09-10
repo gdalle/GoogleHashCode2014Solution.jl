@@ -1,3 +1,3 @@
-# HashCode2014Solution.jl
+# GoogleHashCode2014Solution.jl
 
-Solution for [HashCode2014.jl](https://github.com/gdalle/HashCode2014.jl)
+Solution algorithms for [GoogleHashCode2014.jl](https://github.com/gdalle/GoogleHashCode2014.jl)
