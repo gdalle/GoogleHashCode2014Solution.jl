@@ -1,0 +1,5 @@
+.CondaPkg
+/docs/build
+solution/
+playground.jl
+Manifest.toml
